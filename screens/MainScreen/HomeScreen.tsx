@@ -13,7 +13,7 @@ const sessions = [
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(moment());
-   const navigation = useNavigation<any>();
+  const navigation = useNavigation<any>();
 
   const markedDates = sessions.map((s) => ({
     date: moment(s.date),
@@ -23,7 +23,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
 
-        <Pressable onPress={() => navigation.openDrawer()}>
+      <Pressable onPress={() => navigation.openDrawer()}>
         <Ionicons name="menu" size={28} color="#2ecc71" />
       </Pressable>
 
