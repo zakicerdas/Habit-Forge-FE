@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import CalendarStrip from "react-native-calendar-strip";
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import moment from "moment";
 
 const sessions = [
@@ -11,6 +13,7 @@ const sessions = [
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState(moment());
+   const navigation = useNavigation<any>();
 
   const markedDates = sessions.map((s) => ({
     date: moment(s.date),
@@ -19,6 +22,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+
+        <Pressable onPress={() => navigation.openDrawer()}>
+        <Ionicons name="menu" size={28} color="#2ecc71" />
+      </Pressable>
 
       {/* Date badge */}
       <View style={styles.dateBadge}>
@@ -63,6 +70,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F6FFF8",
     padding: 16,
+  },
+
+  titles: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1B4332",
+    marginTop: 16,
+    marginBottom: 12,
   },
 
   /* Date badge */
