@@ -9,6 +9,7 @@ import { Ionicons } from "@react-native-vector-icons/ionicons";
 import HomeScreen from "../screens/HomeScreen";
 import StatisticsScreen from "../screens/StatisticScreen";
 import AddActivityScreen from "../screens/AddActivityScreen";
+import ProfileScreen from "../screens/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -38,12 +39,26 @@ function StatsIcon({ focused, color, size }: TabIconProps) {
   );
 }
 
+function ProfileIcon({ focused, color, size }: TabIconProps) {
+  return (
+    <Ionicons
+      name={focused ? "person" : "person-outline"}
+      size={size}
+      color={focused ? styles.activeIcon.color : color}
+    />
+  )
+}
+
 const renderTodayIcon = (props: TabIconProps) => (
   <TodayIcon {...props} />
 );
 
 const renderStatsIcon = (props: TabIconProps) => (
   <StatsIcon {...props} />
+);
+
+const renderProfileIcon = (props: TabIconProps) => (
+  <ProfileIcon {...props} />
 );
 
 function TabBarBackground() {
@@ -104,6 +119,14 @@ export default function BottomTabs() {
         component={StatisticsScreen}
         options={{
           tabBarIcon: renderStatsIcon,
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: renderProfileIcon
         }}
       />
     </Tab.Navigator>
