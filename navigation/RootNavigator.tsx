@@ -1,15 +1,15 @@
-import React, { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import React from "react";
+import { useAuth } from "../hooks/useAuth";
 import AuthNavigator from "./AuthNavigator";
 import DrawerNavigator from "./DrawerNavigator";
 import LoadingScreen from "../screens/AuthScreen/LoadingScreen";
 
 export default function RootNavigator() {
-  const { isLoggedIn, isLoading } = useContext(AuthContext);
+  const { token, isLoading } = useAuth();
 
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  return isLoggedIn ? <DrawerNavigator /> : <AuthNavigator />;
+  return token ? <DrawerNavigator /> : <AuthNavigator />;
 }
