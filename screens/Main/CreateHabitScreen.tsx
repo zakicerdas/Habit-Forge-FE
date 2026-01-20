@@ -6,13 +6,13 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import CategorySelector from "../components/CategorySelector";
+import CategorySelector from "../../components/CategorySelector";
 
 export default function CreateHabitScreen() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [frequency, setFrequency] = useState("Daily");
-  const [startDate] = useState("2026-01-08"); // dummy
+  const [startDate] = useState("2026-01-08"); 
 
   return (
     <View style={styles.container}>

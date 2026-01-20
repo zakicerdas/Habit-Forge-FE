@@ -6,9 +6,9 @@ import {
 } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 
-import HomeScreen from "../screens/MainScreen/HomeScreen";
-import StatisticsScreen from "../screens/MainScreen/StatisticScreen";
-import AddActivityScreen from "../screens/MainScreen/AddActivityScreen";
+import HomeScreen from "../screens/Main/HomeScreen";
+import StatisticsScreen from "../screens/Main/StatisticScreen";
+import CreateHabitScreen from "../screens/Main/CreateHabitScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -92,7 +92,7 @@ export default function BottomTabs() {
 
             <Tab.Screen
                 name="Add"
-                component={AddActivityScreen}
+                component={CreateHabitScreen}
                 options={{
                     tabBarLabel: "",
                     tabBarButton: renderAddButton,

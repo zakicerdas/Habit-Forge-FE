@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-/* Dummy Data (sementara) */
 const dummyUser = {
   name: "Dummy",
   email: "dummy@email.com",
@@ -76,10 +75,6 @@ function ProfileActions() {
     <View style={styles.actions}>
       <TouchableOpacity style={styles.primaryButton}>
         <Text style={styles.primaryButtonText}>Edit Profile</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.logoutButton}>
-        <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );
@@ -153,20 +148,6 @@ const styles = StyleSheet.create({
 
   primaryButtonText: {
     color: "#FFFFFF",
-    fontWeight: "600",
-  },
-
-  logoutButton: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 14,
-    borderRadius: 16,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E63946",
-  },
-
-  logoutText: {
-    color: "#E63946",
     fontWeight: "600",
   },
 });

@@ -2,7 +2,7 @@ import React from "react";
 import { useAuth } from "../hooks/useAuth";
 import AuthNavigator from "./AuthNavigator";
 import DrawerNavigator from "./DrawerNavigator";
-import LoadingScreen from "../screens/AuthScreen/LoadingScreen";
+import LoadingScreen from "../screens/Auth/LoadingScreen";
 
 export default function RootNavigator() {
   const { token, isLoading } = useAuth();

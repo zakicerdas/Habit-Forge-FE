@@ -8,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen({ navigation }: any) {
   const { login } = useAuth();
@@ -29,9 +30,7 @@ export default function LoginScreen({ navigation }: any) {
       await login(email.trim().toLowerCase(), password);
 
       console.log("✅ LOGIN SUCCESS");
-      // ❗ JANGAN navigate manual
-      // RootNavigator yang akan pindahin screen
-
+     
     } catch (error: any) {
       console.log(
         "❌ LOGIN ERROR:",
@@ -83,6 +82,16 @@ export default function LoginScreen({ navigation }: any) {
         onPress={() => navigation.navigate("Register")}
       >
         <Text style={styles.registerText}>Register</Text>
+      </Pressable>
+
+      <Pressable
+        style={styles.clearButton}
+        onPress={async () => {
+          await AsyncStorage.clear();
+          Alert.alert("Success", "AsyncStorage cleared");
+        }}
+      >
+        <Text style={styles.clearText}>Clear AsyncStorage (Debug)</Text>
       </Pressable>
     </View>
   );
@@ -147,5 +156,18 @@ const styles = StyleSheet.create({
   registerText: {
     color: "#2ecc71",
     fontWeight: "600",
+  },
+  clearButton: {
+    height: 40,
+    backgroundColor: "#ff6b6b",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 12,
+  },
+  clearText: {
+    color: "#fff",
+    fontWeight: "500",
+    fontSize: 12,
   },
 });
