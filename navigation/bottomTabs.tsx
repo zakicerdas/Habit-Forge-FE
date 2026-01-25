@@ -5,7 +5,6 @@ import {
     BottomTabBarButtonProps,
 } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
-
 import HomeScreen from "../screens/Main/HomeScreen";
 import StatisticsScreen from "../screens/Main/StatisticScreen";
 import CreateHabitScreen from "../screens/Main/CreateHabitScreen";
@@ -80,6 +79,7 @@ export default function BottomTabs() {
                 tabBarLabelStyle: styles.label,
                 tabBarStyle: styles.tabBar,
                 tabBarBackground: TabBarBackground,
+                tabBarHideOnKeyboard: true,
             }}
         >
             <Tab.Screen

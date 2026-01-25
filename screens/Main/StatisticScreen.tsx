@@ -1,24 +1,24 @@
-import { StyleSheet, View , Text, } from "react-native";
+import { StyleSheet, View, Text, } from "react-native";
 
-  /* Dummy */
+/* Dummy */
 const overallProgress = 75
 
 const weeklyProgress = [
-  {day: "Mon", value: 80},
-  {day: "Tue", value: 60},
-  {day: "Wed", value: 40},
-  {day: "Thu", value: 90},
-  {day: "Fri", value: 50},
-  {day: "Sat", value: 100},
-  {day: "Sun", value: 70},
+  { day: "Mon", value: 80 },
+  { day: "Tue", value: 60 },
+  { day: "Wed", value: 40 },
+  { day: "Thu", value: 90 },
+  { day: "Fri", value: 50 },
+  { day: "Sat", value: 100 },
+  { day: "Sun", value: 70 },
 ]
 
 const categoryProgress = [
-  {name: "Work", value: 70},
-  {name: "Study", value: 60},
-  {name: "Health", value: 40},
-  {name: "Fitness", value: 90},
-  {name: "Personal", value: 50},
+  { name: "Work", value: 70 },
+  { name: "Study", value: 60 },
+  { name: "Health", value: 40 },
+  { name: "Fitness", value: 90 },
+  { name: "Personal", value: 50 },
 ]
 
 export default function StatisticScreen() {
@@ -31,46 +31,46 @@ export default function StatisticScreen() {
         <Text style={styles.cardTitle}>Weekly Progress</Text>
 
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, {width: `${overallProgress}%`} ]}/>
+          <View style={[styles.progressFill, { width: `${overallProgress}%` }]} />
+        </View>
+
+        <Text style={styles.progressText}>
+          {overallProgress}% Completed
+        </Text>
       </View>
 
-          <Text style={styles.progressText}>
-            {overallProgress}% Completed
-          </Text>
-        </View>
+      {/* Weekly */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Daily Completion</Text>
 
-        {/* Weekly */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Daily Completion</Text>
-
-          <View style={styles.weekRow}>
-            {weeklyProgress.map((item) => (
-              <View key={item.day} style={styles.dayItem}>
-                <View style={styles.dayBar}>
-                  <View style= {[styles.dayFill, {height: `${item.value}%`}]}/>
-                </View>
-                <Text style={styles.dayLabel}>{item.day}</Text>
+        <View style={styles.weekRow}>
+          {weeklyProgress.map((item) => (
+            <View key={item.day} style={styles.dayItem}>
+              <View style={styles.dayBar}>
+                <View style={[styles.dayFill, { height: `${item.value}%` }]} />
               </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Category */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>By Category</Text>
-
-          {categoryProgress.map((item)=> (
-            <View key={item.name} style={styles.categoryItem}>
-              <Text style={styles.categoryLabel}>{item.name}</Text>
-
-              <View style={styles.categoryBar}>
-                <View style={[styles.categoryFill, {width: `${item.value}%` }]}/>
-              </View>
-
-              <Text style={styles.categoryValue}>{item.value}%</Text>
+              <Text style={styles.dayLabel}>{item.day}</Text>
             </View>
           ))}
         </View>
+      </View>
+
+      {/* Category */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>By Category</Text>
+
+        {categoryProgress.map((item) => (
+          <View key={item.name} style={styles.categoryItem}>
+            <Text style={styles.categoryLabel}>{item.name}</Text>
+
+            <View style={styles.categoryBar}>
+              <View style={[styles.categoryFill, { width: `${item.value}%` }]} />
+            </View>
+
+            <Text style={styles.categoryValue}>{item.value}%</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

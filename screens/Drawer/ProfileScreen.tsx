@@ -28,7 +28,7 @@ export default function ProfileScreen() {
   );
 }
 
-    /* header */
+/* header */
 function ProfileHeader() {
   return (
     <View style={styles.header}>
@@ -43,7 +43,7 @@ function ProfileHeader() {
   );
 }
 
-    /* stats */
+/* stats */
 function ProfileStats() {
   return (
     <View style={styles.stats}>
@@ -69,7 +69,7 @@ function StatItem({
   );
 }
 
-    /* actions */
+/* actions */
 function ProfileActions() {
   return (
     <View style={styles.actions}>

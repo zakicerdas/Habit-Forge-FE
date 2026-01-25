@@ -6,25 +6,28 @@ import {
   StyleSheet,
   FlatList,
 } from "react-native";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { useCategory } from "../../hooks/useCategory";
+import { CategoryName } from "../../types/category";
+import LoadingScreen from "../../screens/Auth/LoadingScreen";
 
-    /* Dummy */
-const categories = [
-  { id: "1", name: "Work" },
-  { id: "2", name: "Study" },
-  { id: "3", name: "Health" },
-  { id: "4", name: "Fitness" },
-  { id: "5", name: "Personal" },
-];
+
 
 type Props = {
-  selectedCategory: string | null;
-  onSelect: (category: string) => void;
+  selectedCategoryName: CategoryName | null;
+  onSelect: (categoryName: CategoryName) => void;
 };
 
 export default function CategorySelector({
-  selectedCategory,
+  selectedCategoryName,
   onSelect,
 }: Props) {
+  const { categories, loading } = useCategory();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Category</Text>
@@ -33,25 +36,34 @@ export default function CategorySelector({
         horizontal
         showsHorizontalScrollIndicator={false}
         data={categories}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.name}
         renderItem={({ item }) => {
-          const isSelected = item.name === selectedCategory;
+          const isSelected = item.name === selectedCategoryName;
 
           return (
             <TouchableOpacity
               style={[
                 styles.chip,
                 isSelected && styles.chipActive,
+                { borderColor: item.color },
               ]}
               onPress={() => onSelect(item.name)}
             >
+              {item.icon && (
+                <Ionicons
+                  name={item.icon as any}
+                  size={16}
+                  color={isSelected ? "#FFF" : item.color || "#1B4332"}
+                  style={styles.chipIcon}
+                />
+              )}
               <Text
                 style={[
                   styles.chipText,
                   isSelected && styles.chipTextActive,
                 ]}
               >
-                {item.name}
+                {item.displayName}
               </Text>
             </TouchableOpacity>
           );
@@ -81,11 +93,18 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderWidth: 1,
     borderColor: "#D8F3DC",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
 
   chipActive: {
     backgroundColor: "#2ECC71",
     borderColor: "#2ECC71",
+  },
+
+  chipIcon: {
+    marginRight: 2,
   },
 
   chipText: {

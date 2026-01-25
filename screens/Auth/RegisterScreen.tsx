@@ -8,9 +8,10 @@ import {
   Alert,
 } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
+import LoadingScreen from "./LoadingScreen";
 
 export default function RegisterScreen({ navigation }: any) {
-  const { register } = useAuth();
+  const { register, isLoading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -23,7 +24,7 @@ export default function RegisterScreen({ navigation }: any) {
     }
 
     try {
-      console.log("📤 REGISTER REQUEST");
+      console.log("requesting register...");
       console.log("Email:", email);
       console.log("Username:", username);
       console.log("Password length:", password.length);
@@ -34,7 +35,7 @@ export default function RegisterScreen({ navigation }: any) {
         password
       );
 
-      console.log("✅ REGISTER SUCCESS");
+      console.log("register successful");
 
       Alert.alert(
         "Berhasil",
@@ -45,17 +46,21 @@ export default function RegisterScreen({ navigation }: any) {
 
     } catch (error: any) {
       console.log(
-        "❌ REGISTER ERROR:",
+        "register error:",
         error?.response?.data || error
       );
 
       Alert.alert(
         "Register gagal",
         error?.response?.data?.message ||
-          "Email atau username sudah terdaftar"
+        "Email atau username sudah terdaftar"
       );
     }
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View style={styles.container}>

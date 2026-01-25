@@ -9,9 +9,11 @@ import {
 } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingScreen from "./LoadingScreen";
+
 
 export default function LoginScreen({ navigation }: any) {
-  const { login } = useAuth();
+  const { login, isLoading } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,26 +25,30 @@ export default function LoginScreen({ navigation }: any) {
     }
 
     try {
-      console.log("📤 LOGIN REQUEST");
+      console.log("Requesting login...");
       console.log("Email:", email);
       console.log("Password length:", password.length);
 
       await login(email.trim().toLowerCase(), password);
 
-      console.log("✅ LOGIN SUCCESS");
-     
+      console.log("login successful");
+
     } catch (error: any) {
       console.log(
-        "❌ LOGIN ERROR:",
+        "cannot login:",
         error?.response?.data || error
       );
 
       Alert.alert(
-        "Login gagal",
+        "Login failed",
         error?.response?.data?.message || "Email atau password salah"
       );
     }
   };
+
+    if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <View style={styles.container}>

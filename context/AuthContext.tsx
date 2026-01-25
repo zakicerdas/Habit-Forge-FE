@@ -25,9 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     /**
-     * =========================
      * LOAD DATA SAAT APP DIBUKA
-     * =========================
      * Ambil token & user dari AsyncStorage
      * Supaya login TIDAK hilang saat app restart
      */
@@ -52,9 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     /**
-     * =========================
-     * REGISTER
-     * =========================
+     * REGISTER    
      * Hanya kirim data → backend
      * TIDAK menyimpan token
      */
@@ -63,52 +59,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         username: string,
         password: string
     ) => {
-        await api.post("/auth/register", {
-            email,
-            username,
-            password,
-        });
+        setIsLoading(true);
+
+        try {
+            await api.post("/auth/register", {
+                email,
+                username,
+                password,
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     /**
-     * =========================
      * LOGIN (FETCHING TERJADI DI SINI)
-     * =========================
      * Backend response:
      * res.data.data.user
      * res.data.data.token
      */
     const login = async (email: string, password: string) => {
-        const res = await api.post("/auth/login", {
-            email,
-            password,
-        });
+        setIsLoading(true);
 
-       const {
-    user: loggedInUser,
-    token: accessToken, 
-  } = res.data.data;
+        try {
+            const res = await api.post("/auth/login", {
+                email,
+                password,
+            });
 
+            const {
+                user: loggedInUser,
+                token: accessToken,
+            } = res.data.data;
 
-        await AsyncStorage.setItem("token", accessToken);
-        await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
+            await AsyncStorage.setItem("token", accessToken);
+            await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
 
-        setToken(accessToken);
-        setUser(loggedInUser);
+            setToken(accessToken);
+            setUser(loggedInUser);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     /**
-     * =========================
      * LOGOUT
-     * =========================
      * Bersihkan storage & state
      */
     const logout = async () => {
-        await AsyncStorage.removeItem("token");
-        await AsyncStorage.removeItem("user");
+        setIsLoading(true);
 
-        setToken(null);
-        setUser(null);
+        try {
+            await AsyncStorage.removeItem("token");
+            await AsyncStorage.removeItem("user");
+
+            setToken(null);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

@@ -16,12 +16,6 @@ function DummyScreen({ title }: { title: string }) {
     );
 }
 
-/**
- * ===============================
- * CUSTOM DRAWER CONTENT
- * ===============================
- * Menampilkan logout button di bagian bawah drawer
- */
 function CustomDrawerContent(props: any) {
     const { logout } = useAuth();
 
@@ -83,7 +77,9 @@ export default function DrawerNavigator() {
             <Drawer.Screen
                 name="Home"
                 component={BottomTabs}
-                options={{ drawerLabel: "Home" }}
+                options={{
+                    drawerLabel: "Home",
+                }}
             />
             <Drawer.Screen
                 name="Settings"
@@ -92,7 +88,9 @@ export default function DrawerNavigator() {
             <Drawer.Screen
                 name="Profile"
                 component={ProfileScreen}
-                options={{ drawerLabel: "Profile" }}
+                options={{
+                    drawerLabel: "Profile",
+                }}
             />
         </Drawer.Navigator>
     );

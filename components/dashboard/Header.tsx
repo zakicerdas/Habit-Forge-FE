@@ -21,7 +21,7 @@ export default function Header({
           {selectedDate.format("MMM DD, YYYY")}
         </Text>
       </View>
-      
+
       <View style={styles.progressWrapper}>
         <View style={styles.progressHeader}>
           <Text style={styles.progressText}>
