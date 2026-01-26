@@ -1,30 +1,23 @@
 import React from "react"
-import { Button, Alert } from "react-native"
-import { checkInHabit } from "../../services/checkin.service"
+import { Button } from "react-native"
 import { Habit } from "../../types/habit"
 
 type Props = {
   habit: Habit
   isChecked: boolean
-  onCheckedIn: () => void
+  onCheckedIn: (habitId: string) => void
 }
 
-export default function CheckInButton({ habit, isChecked, onCheckedIn }: Props) {
-  const onCheckIn = async () => {
-    try {
-      await checkInHabit(habit.id)
-      onCheckedIn()
-    } catch (e) {
-      console.error(e)
-      Alert.alert("Error", "Gagal check-in habit")
-    }
-  }
-
+export default function CheckInButton({
+  habit,
+  isChecked,
+  onCheckedIn,
+}: Props) {
   return (
     <Button
       title={isChecked ? "Sudah Check-in" : "Check-in"}
       disabled={isChecked}
-      onPress={onCheckIn}
+      onPress={() => onCheckedIn(habit.id)}
     />
   )
 }

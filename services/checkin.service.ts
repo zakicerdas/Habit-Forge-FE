@@ -1,9 +1,14 @@
-import api from "./api"
-import { CheckIn } from "../types/checkIn"
+import api from "./api";
+import { CheckIn } from "../types/checkIn";
 
 export const checkInHabit = async (
-  habitId: string
+  habitId: string,
+  date: string
 ): Promise<CheckIn> => {
-  const res = await api.post("/checkIn", { habitId })
-  return res.data.data
-}
+  const res = await api.post("/checkIn", {
+    habitId,
+    date,
+  });
+
+  return res.data.data;
+};

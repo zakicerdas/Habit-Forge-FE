@@ -4,9 +4,9 @@ import moment from "moment";
 
 import Header from "../../components/dashboard/Header";
 import CalendarSection from "../../components/dashboard/CalendarSection";
-import TodayActivities from "../../components/dashboard/TodayActivities";
 import CategoryFilter from "../../components/dashboard/CategoryFilter";
 import LoadingScreen from "../Auth/LoadingScreen";
+import HabitCards from "../../components/dashboard/HabitCard";
 
 import { useHabit } from "../../hooks/useHabit";
 import { Frequency } from "../../types/frequency";
@@ -19,34 +19,31 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryName | "ALL">("ALL");
 
-  const activities = useMemo(() => {
-    return habits
-      .filter((habit) => {
-        const startDate = moment(habit.startDate);
+  // Filter habit sesuai tanggal & kategori
+  const filteredHabits = useMemo(() => {
+    return habits.filter((habit) => {
+      const startDate = moment(habit.startDate);
 
-        if (selectedDate.isBefore(startDate, "day")) return false;
-        if (selectedCategory !== "ALL" && habit.categoryName !== selectedCategory)
-          return false;
-
-        if (habit.frequency === Frequency.DAILY) return true;
-        if (habit.frequency === Frequency.WEEKLY)
-          return selectedDate.day() === startDate.day();
-        if (habit.frequency === Frequency.MONTHLY)
-          return selectedDate.date() === startDate.date();
-        if (habit.frequency === Frequency.YEARLY)
-          return (
-            selectedDate.month() === startDate.month() &&
-            selectedDate.date() === startDate.date()
-          );
-
+      if (selectedDate.isBefore(startDate, "day")) return false;
+      if (
+        selectedCategory !== "ALL" &&
+        habit.categoryName !== selectedCategory
+      )
         return false;
-      })
-      .map((habit) => ({
-        id: habit.id,
-        title: habit.title,
-        completed: habit.isHabitChecked,
-        habit,
-      }));
+
+      if (habit.frequency === Frequency.DAILY) return true;
+      if (habit.frequency === Frequency.WEEKLY)
+        return selectedDate.day() === startDate.day();
+      if (habit.frequency === Frequency.MONTHLY)
+        return selectedDate.date() === startDate.date();
+      if (habit.frequency === Frequency.YEARLY)
+        return (
+          selectedDate.month() === startDate.month() &&
+          selectedDate.date() === startDate.date()
+        );
+
+      return false;
+    });
   }, [habits, selectedDate, selectedCategory]);
 
   const sessions = useMemo(() => {
@@ -62,8 +59,10 @@ export default function HomeScreen() {
 
         const show =
           habit.frequency === Frequency.DAILY ||
-          (habit.frequency === Frequency.WEEKLY && date.day() === startDate.day()) ||
-          (habit.frequency === Frequency.MONTHLY && date.date() === startDate.date()) ||
+          (habit.frequency === Frequency.WEEKLY &&
+            date.day() === startDate.day()) ||
+          (habit.frequency === Frequency.MONTHLY &&
+            date.date() === startDate.date()) ||
           (habit.frequency === Frequency.YEARLY &&
             date.month() === startDate.month() &&
             date.date() === startDate.date());
@@ -79,16 +78,18 @@ export default function HomeScreen() {
     return Object.values(map);
   }, [habits]);
 
-  if (isLoading) return <LoadingScreen />;
+  const completedCount = filteredHabits.filter(
+    (habit) => (habit.checkIn?.length || 0) > 0
+  ).length;
 
-  const completedCount = activities.filter((a) => a.completed).length;
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
       <Header
         selectedDate={selectedDate}
         completed={completedCount}
-        total={activities.length}
+        total={filteredHabits.length}
       />
 
       <CategoryFilter
@@ -102,14 +103,14 @@ export default function HomeScreen() {
         sessions={sessions}
       />
 
-      <TodayActivities
-        activities={activities}
-        onHabitCheckedIn={async (habitId) => {
+      <HabitCards
+        habits={filteredHabits}
+        onCheckIn={async (habitId: string) => {
           try {
-            await checkInHabit(habitId);
-            await fetchHabits();
-          } catch (err) {
-            console.error("Check-in gagal:", err);
+            await checkInHabit(habitId, selectedDate.format("YYYY-MM-DD"));
+            await fetchHabits(selectedDate.format("YYYY-MM-DD"));
+          } catch (err: any) {
+            console.log("Check-in error:", err?.response?.data || err);
           }
         }}
       />
@@ -122,9 +123,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F6FFF8",
     padding: 16,
-  },
-  center: {
-    justifyContent: "center",
-    alignItems: "center",
   },
 });

@@ -1,5 +1,6 @@
 import { Frequency } from "./frequency";
 import { CategoryName } from "./category";
+import { CheckIn } from "./checkIn";
 
 export type Habit = {
   id: string;
@@ -10,6 +11,5 @@ export type Habit = {
   frequency: Frequency;
   startDate: string;
   createdAt: string;
-
-  isHabitChecked: boolean; 
+  checkIn?: CheckIn[];
 };

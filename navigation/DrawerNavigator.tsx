@@ -3,6 +3,7 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, } from 
 import BottomTabs from "./bottomTabs";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "../hooks/useAuth";
+import { useHabit } from "../hooks/useHabit";
 import { StyleSheet, View, Text, Alert, TouchableOpacity } from "react-native";
 import ProfileScreen from "../screens/Drawer/ProfileScreen";
 
@@ -18,6 +19,7 @@ function DummyScreen({ title }: { title: string }) {
 
 function CustomDrawerContent(props: any) {
     const { logout } = useAuth();
+    const { resetHabits } = useHabit();
 
     const handleLogout = () => {
         Alert.alert(
@@ -30,6 +32,7 @@ function CustomDrawerContent(props: any) {
                     onPress: async () => {
                         try {
                             await logout();
+                            resetHabits();
                         } catch {
                             Alert.alert("Error", "Gagal logout");
                         }
