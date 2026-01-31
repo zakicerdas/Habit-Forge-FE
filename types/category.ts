@@ -1,25 +1,17 @@
-export enum CategoryName {
-    HEALTHY = "HEALTHY",
-    LEARNING = "LEARNING",
-    FINANCE = "FINANCE",
-    WORK = "WORK",
-    SOCIAL = "SOCIAL",
+export enum Category {
+  HEALTH = "HEALTH",
+  FINANCE = "FINANCE",
+  WORK = "WORK",
+  LEARNING = "LEARNING",
+  SOCIAL = "SOCIAL",
 }
 
-export interface Category {
-    id: string
-    name: CategoryName
-    displayName: string
-    description?: string
-    color?: string
-    icon?: string
-}
+export const categoryLabel: Record<Category, string> = {
+  HEALTH: "Kesehatan",
+  FINANCE: "Keuangan",
+  WORK: "Pekerjaan",
+  LEARNING: "Belajar",
+  SOCIAL: "Sosial",
+};
 
-// Display names untuk UI
-export const categoryDisplayNames: Record<CategoryName, string> = {
-    [CategoryName.HEALTHY]: "Kesehatan",
-    [CategoryName.LEARNING]: "Belajar",
-    [CategoryName.FINANCE]: "Keuangan",
-    [CategoryName.WORK]: "Pekerjaan",
-    [CategoryName.SOCIAL]: "Sosial",
-}
+export const categoryValues = Object.values(Category);

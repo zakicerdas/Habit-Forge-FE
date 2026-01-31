@@ -39,7 +39,6 @@ export default function StatisticScreen() {
         </Text>
       </View>
 
-      {/* Weekly */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Daily Completion</Text>
 
@@ -55,7 +54,6 @@ export default function StatisticScreen() {
         </View>
       </View>
 
-      {/* Category */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>By Category</Text>
 

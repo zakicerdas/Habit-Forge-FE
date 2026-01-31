@@ -1,117 +1,184 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+    createContext,
+    useState,
+    useEffect,
+    useCallback,
+} from "react";
 import api from "../services/api";
-import { Habit } from "../types/habit";
-import { CategoryName } from "../types/category";
-import { Frequency } from "../types/frequency";
+import type { Habit } from "../types/habit";
+import type { CheckIn } from "../types/checkIn";
+import type { Category } from "../types/category";
+import type { Frequency } from "../types/frequency";
 
 export type CreateHabitInput = {
-  title: string;
-  description?: string;
-  categoryName: CategoryName;
-  frequency: Frequency;
-  startDate: string;
+    title: string;
+    description?: string;
+    category: Category;
+    frequency: Frequency;
+    startDate: string;
 };
 
 export type HabitContextType = {
-  habits: Habit[];
-  isLoading: boolean;
-  error: string | null;
-  createHabit: (habit: CreateHabitInput) => Promise<void>;
-  fetchHabits: (date?: string) => Promise<void>;
-  deleteHabit: (id: string) => Promise<void>;
-  resetHabits: () => void;
+    habits: Habit[];
+    isLoading: boolean;
+    error: string | null;
+    createHabit: (habit: CreateHabitInput) => Promise<void>;
+    fetchHabits: (date?: string) => Promise<void>;
+    deleteHabit: (id: string) => Promise<void>;
+    updateHabit: (id: string, data: Partial<CreateHabitInput>) => Promise<void>;
+    handleCheckIn: (habitId: string, date: string) => Promise<void>;
+    resetHabits: () => void;
 };
 
-export const HabitContext = createContext<HabitContextType | null>(null);
+export const HabitContext =
+    createContext<HabitContextType | null>(null);
 
-export const HabitProvider = ({ children }: { children: React.ReactNode }) => {
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const HabitProvider = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
+    const [habits, setHabits] = useState<Habit[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-  const fetchHabits = async (date?: string) => {
-    setIsLoading(true);
-    setError(null);
+    const fetchHabits = useCallback(async (date?: string) => {
+        try {
+            const res = await api.get("/habit/today-status", {
+                params: date ? { date } : undefined,
+            });
+            setHabits(res.data.data);
+        } catch (err: any) {
+            setError(
+                err?.response?.data?.message ||
+                "Gagal mengambil habit",
+            );
+        }
+    }, []);
 
-    try {
-      const response = await api.get("/habit", {
-        params: date ? { date } : undefined,
-      });
+    useEffect(() => {
+        fetchHabits();
+    }, [fetchHabits]);
 
-      const data: Habit[] = response.data.data || [];
-      setHabits(data);
-    } catch (err: any) {
-      const errorMsg =
-        err?.response?.data?.message || "Gagal mengambil habits";
-      setError(errorMsg);
-      console.log("fetchHabits error:", errorMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const createHabit = async (habitData: CreateHabitInput) => {
+        setIsLoading(true);
+        setError(null);
 
-  const createHabit = async (habitData: CreateHabitInput) => {
-    setIsLoading(true);
-    setError(null);
+        try {
+            const res = await api.post("/habit", habitData);
+            setHabits((prev) => [...prev, res.data.data]);
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                "Gagal membuat habit";
+            setError(msg);
+            throw new Error(msg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-    try {
-      const response = await api.post("/habit", habitData);
-      const newHabit: Habit = response.data.data;
 
-      setHabits((prev) => [...prev, newHabit]);
-    } catch (err: any) {
-      const errorMsg =
-        err?.response?.data?.message || "Gagal membuat habit";
-      setError(errorMsg);
-      console.log("createHabit error:", errorMsg);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const deleteHabit = async (id: string) => {
+        setError(null);
 
-  const deleteHabit = async (id: string) => {
-    setIsLoading(true);
-    setError(null);
+        try {
+            await api.delete(`/habit/${id}`);
+            setHabits((prev) =>
+                prev.filter((h) => h.id !== id),
+            );
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                "Gagal menghapus habit";
+            setError(msg);
+            throw new Error(msg);
+        }
+    };
 
-    try {
-      await api.delete(`/habit/${id}`);
-      setHabits((prev) => prev.filter((h) => h.id !== id));
-    } catch (err: any) {
-      const errorMsg =
-        err?.response?.data?.message || "Gagal menghapus habit";
-      setError(errorMsg);
-      console.log("deleteHabit error:", errorMsg);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const updateHabit = async (
+  id: string,
+  data: Partial<CreateHabitInput>
+) => {
+  setIsLoading(true);
+  setError(null);
 
-  const resetHabits = () => {
-    setHabits([]);
-    setError(null);
+  try {
+    const res = await api.put(`/habit/${id}`, data);
+    const updatedHabit: Habit = res.data.data;
+
+    setHabits((prev) =>
+      prev.map((h) => (h.id === id ? updatedHabit : h)),
+    );
+  } catch (err: any) {
+    const msg =
+      err?.response?.data?.message || "Gagal update habit";
+    setError(msg);
+    throw new Error(msg);
+  } finally {
     setIsLoading(false);
   }
+};
 
 
-  useEffect(() => {
-    fetchHabits();
-  }, []);
 
-  return (
-    <HabitContext.Provider
-      value={{
-        habits,
-        isLoading,
-        error,
-        createHabit,
-        fetchHabits,
-        deleteHabit,
-        resetHabits,
-      }}
-    >
-      {children}
-    </HabitContext.Provider>
-  );
+    const handleCheckIn = async (
+        habitId: string,
+        date: string,
+    ) => {
+        setError(null);
+
+        try {
+            const res = await api.post("/checkIn", {
+                habitId,
+                date,
+            });
+
+            const newCheckIn: CheckIn = res.data.data;
+
+            setHabits((prev) =>
+                prev.map((habit) =>
+                    habit.id !== habitId
+                        ? habit
+                        : {
+                            ...habit,
+                            checkIn: [
+                                ...(habit.checkIn ?? []),
+                                newCheckIn,
+                            ],
+                        },
+                ),
+            );
+        } catch (err: any) {
+            const msg =
+                err?.response?.data?.message ||
+                "Check-in gagal";
+            setError(msg);
+            throw new Error(msg);
+        }
+    };
+
+    const resetHabits = () => {
+        setHabits([]);
+        setError(null);
+        setIsLoading(false);
+    };
+
+    return (
+        <HabitContext.Provider
+            value={{
+                habits,
+                isLoading,
+                error,
+                createHabit,
+                fetchHabits,
+                deleteHabit,
+                handleCheckIn,
+                updateHabit,
+                resetHabits,
+            }}
+        >
+            {children}
+        </HabitContext.Provider>
+    );
 };

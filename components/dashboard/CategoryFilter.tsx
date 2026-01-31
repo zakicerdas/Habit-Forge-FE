@@ -1,67 +1,89 @@
-import React from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
-import { CategoryName } from "../../types/category";
-import { useCategory } from "../../hooks/useCategory";
+import {  Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Category } from "../../types/category";
 
-export default function CategoryFilter({
-  selected,
-  onSelect,
-}: {
-  selected: CategoryName | "ALL";
-  onSelect: (c: CategoryName | "ALL") => void;
-}) {
-  const { categories } = useCategory();
+const categories: (Category | "ALL")[] = [
+  "ALL",
+  Category.HEALTH,
+  Category.FINANCE,
+  Category.WORK,
+  Category.LEARNING,
+  Category.SOCIAL,
+];
 
+type Props = {
+  value: Category | "ALL";
+  onChange: (val: Category | "ALL") => void;
+};
+
+export default function CategoryFilter({ value, onChange }: Props) {
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Pressable
-          key="ALL"
-          onPress={() => onSelect("ALL")}
-          style={[styles.item, selected === "ALL" && styles.active]}
-        >
-          <Text style={[styles.text, selected === "ALL" && styles.activeText]}>Semua</Text>
-        </Pressable>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.row}
+    >
+      {categories.map((cat) => {
+        const active = value === cat;
 
-        {categories.map((c) => (
-          <Pressable
-            key={c.name}
-            onPress={() => onSelect(c.name)}
-            style={[styles.item, selected === c.name && styles.active]}
+        return (
+          <TouchableOpacity
+            key={cat}
+            activeOpacity={0.85}
+            style={[
+              styles.chip,
+              active ? styles.activeChip : styles.inactiveChip,
+            ]}
+            onPress={() => onChange(cat)}
           >
-            <Text style={[styles.text, selected === c.name && styles.activeText]}>
-              {c.displayName}
+            <Text
+              style={[
+                styles.text,
+                active ? styles.activeText : styles.inactiveText,
+              ]}
+            >
+              {cat === "ALL" ? "All" : cat}
             </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-    </View>
+          </TouchableOpacity>
+        );
+      })}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    marginVertical: 8,
-    flexWrap: "wrap",
+  row: {
+    paddingHorizontal: 16,
+    gap: 10,
+    paddingBottom: 4,
   },
-  item: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: "#E9F5EE",
-    marginRight: 8,
-    marginBottom: 6,
+
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 999,
   },
-  active: {
+
+  activeChip: {
     backgroundColor: "#2ECC71",
+    elevation: 3,
   },
+
+  inactiveChip: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+
   text: {
-    fontSize: 12,
-    color: "#1B4332",
-  },
-  activeText: {
-    color: "#fff",
+    fontSize: 13,
     fontWeight: "600",
+  },
+
+  activeText: {
+    color: "#FFFFFF",
+  },
+
+  inactiveText: {
+    color: "#1B4332",
   },
 });

@@ -3,6 +3,7 @@ export type CheckIn = {
   habitId: string;
   createdAt: string;
   date: string;
+  dateDisplay: string;
   userId: string;
   note: string | null;
 };

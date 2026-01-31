@@ -1,6 +1,6 @@
 import React from "react";
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, } from "@react-navigation/drawer";
-import BottomTabs from "./bottomTabs";
+import AppNavigator from "./appNavigator";
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 import { useAuth } from "../hooks/useAuth";
 import { useHabit } from "../hooks/useHabit";
@@ -79,7 +79,7 @@ export default function DrawerNavigator() {
         >
             <Drawer.Screen
                 name="Home"
-                component={BottomTabs}
+                component={AppNavigator}
                 options={{
                     drawerLabel: "Home",
                 }}

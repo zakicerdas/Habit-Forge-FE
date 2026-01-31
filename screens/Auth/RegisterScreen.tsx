@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
 import LoadingScreen from "./LoadingScreen";
@@ -24,52 +25,41 @@ export default function RegisterScreen({ navigation }: any) {
     }
 
     try {
-      console.log("requesting register...");
-      console.log("Email:", email);
-      console.log("Username:", username);
-      console.log("Password length:", password.length);
-
       await register(
         email.trim().toLowerCase(),
         username.trim(),
-        password
+        password,
       );
 
-      console.log("register successful");
-
-      Alert.alert(
-        "Berhasil",
-        "Akun berhasil dibuat. Silakan login."
-      );
-
+      Alert.alert("Berhasil", "Akun berhasil dibuat");
       navigation.navigate("Login");
-
     } catch (error: any) {
-      console.log(
-        "register error:",
-        error?.response?.data || error
-      );
-
       Alert.alert(
         "Register gagal",
         error?.response?.data?.message ||
-        "Email atau username sudah terdaftar"
+        "Email atau username sudah terdaftar",
       );
     }
   };
 
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
+
+      <View style={styles.brand}>
+        <Image
+          source={require("../../assets/logo.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.appName}>HabitForge</Text>
+        <Text style={styles.tagline}>Start your better routine</Text>
+      </View>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -79,7 +69,7 @@ export default function RegisterScreen({ navigation }: any) {
       <TextInput
         style={styles.input}
         placeholder="Username"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         value={username}
         onChangeText={setUsername}
       />
@@ -87,27 +77,23 @@ export default function RegisterScreen({ navigation }: any) {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
 
-      <Pressable style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
+      <Pressable style={styles.primaryButton} onPress={handleRegister}>
+        <Text style={styles.primaryText}>Register</Text>
       </Pressable>
 
-      <View style={styles.orWrapper}>
-        <View style={styles.line} />
-        <Text style={styles.orText}>atau</Text>
-        <View style={styles.line} />
-      </View>
-
       <Pressable
-        style={styles.loginButton}
+        style={styles.secondaryButton}
         onPress={() => navigation.navigate("Login")}
       >
-        <Text style={styles.loginText}>Login</Text>
+        <Text style={styles.secondaryText}>
+          Sudah punya akun? Login
+        </Text>
       </Pressable>
     </View>
   );
@@ -116,61 +102,61 @@ export default function RegisterScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#F6FFF8",
     padding: 24,
-    backgroundColor: "#fff",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#2ecc71",
-    textAlign: "center",
-    marginBottom: 24,
+
+  brand: {
+    alignItems: "center",
+    marginBottom: 32,
   },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: 10,
+  },
+  appName: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#1B4332",
+  },
+  tagline: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginTop: 4,
+  },
+
   input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
+    height: 50,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
     paddingHorizontal: 16,
+    fontSize: 14,
     marginBottom: 12,
+    elevation: 1,
   },
-  button: {
-    height: 48,
-    backgroundColor: "#2ecc71",
-    borderRadius: 10,
+
+  primaryButton: {
+    height: 50,
+    backgroundColor: "#2ECC71",
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
   },
-  buttonText: {
+  primaryText: {
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: "700",
+    fontSize: 16,
   },
-  orWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#ddd",
-  },
-  orText: {
-    marginHorizontal: 10,
-    color: "#888",
-  },
-  loginButton: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#2ecc71",
-    borderRadius: 10,
-    justifyContent: "center",
+
+  secondaryButton: {
+    marginTop: 18,
     alignItems: "center",
   },
-  loginText: {
-    color: "#2ecc71",
+  secondaryText: {
+    color: "#2ECC71",
     fontWeight: "600",
   },
 });

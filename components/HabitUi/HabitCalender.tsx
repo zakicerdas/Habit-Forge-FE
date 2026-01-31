@@ -1,28 +1,26 @@
-import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
-import moment from "moment";
+import Ionicons from "@react-native-vector-icons/ionicons";;
+import type { Moment } from "moment";
+import { useState } from "react";
 
-interface HabitCalendarProps {
-  selectedDate: moment.Moment;
-  onSelectDate: (date: moment.Moment) => void;
-}
+type Props = {
+  selectedDate: Moment;
+  onDateChange: (date: Moment) => void;
+};
 
-export default function HabitCalendar({
+export default function CalendarSection({
   selectedDate,
-  onSelectDate,
-}: HabitCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(selectedDate.clone());
+  onDateChange,
+}: Props) {
+  const [currentMonth, setCurrentMonth] = useState(
+    selectedDate.clone().startOf("month")
+  );
 
   const daysInMonth = currentMonth.daysInMonth();
-  const firstDay = currentMonth.clone().startOf("month").day();
-  const days: (moment.Moment | null)[] = [];
+  const firstDay = currentMonth.day();
+  const days: (Moment | null)[] = [];
 
-  for (let i = 0; i < firstDay; i++) {
-    days.push(null);
-  }
-
-  // Add days
+  for (let i = 0; i < firstDay; i++) days.push(null);
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(currentMonth.clone().date(i));
   }
@@ -35,41 +33,37 @@ export default function HabitCalendar({
             setCurrentMonth(currentMonth.clone().subtract(1, "month"))
           }
         >
-          <Ionicons name="chevron-back" size={24} color="#2ECC71" />
+          <Ionicons name="chevron-back" size={22} />
         </TouchableOpacity>
+
         <Text style={styles.calendarTitle}>
           {currentMonth.format("MMMM YYYY")}
         </Text>
+
         <TouchableOpacity
-          onPress={() => setCurrentMonth(currentMonth.clone().add(1, "month"))}
+          onPress={() =>
+            setCurrentMonth(currentMonth.clone().add(1, "month"))
+          }
         >
-          <Ionicons name="chevron-forward" size={24} color="#2ECC71" />
+          <Ionicons name="chevron-forward" size={22} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.calendarGrid}>
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <View key={day} style={styles.calendarDayHeader}>
-            <Text style={styles.calendarDayHeaderText}>{day}</Text>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.calendarGrid}>
-        {days.map((day, index) => {
+        {days.map((day, i) => {
           const isSelected =
             day &&
-            day.format("YYYY-MM-DD") === selectedDate.format("YYYY-MM-DD");
+            day.isSame(selectedDate, "day");
 
           return (
             <TouchableOpacity
-              key={index}
+              key={i}
+              disabled={!day}
+              onPress={() => day && onDateChange(day)}
               style={[
                 styles.calendarDay,
                 isSelected && styles.calendarDayActive,
               ]}
-              onPress={() => day && onSelectDate(day)}
-              disabled={!day}
             >
               {day && (
                 <Text
@@ -88,6 +82,7 @@ export default function HabitCalendar({
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   calendarHeader: {

@@ -1,83 +1,146 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
-import { MotiView, AnimatePresence } from "moti";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Pressable,
+} from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import { Habit } from "../../types/habit";
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
+import type { Habit } from "../../types/habit";
 
 type HabitCardsProps = {
-  habits: Habit[]; 
-  onCheckIn: (habitId: string) => Promise<void>; // fungsi check-in
-  onDelete?: (habitId: string) => Promise<void>; // optional delete
+  habits: Habit[];
+  selectedDate: string;
+  onCheckIn: (habitId: string, date: string) => Promise<void>;
+  onDelete?: (habitId: string) => Promise<void>;
+  onPressHabit?: (habitId: string) => void;
 };
 
-export default function HabitCards({ habits, onCheckIn, onDelete }: HabitCardsProps) {
-  const handleCheckIn = async (habitId: string) => {
-    try {
-      await onCheckIn(habitId);
-    } catch (err) {
-      console.log("Check-in error:", err);
-    }
-  };
+export default function HabitCards({
+  habits,
+  selectedDate,
+  onCheckIn,
+  onDelete,
+  onPressHabit,
+}: HabitCardsProps) {
+  const [localChecked, setLocalChecked] = useState<Set<string>>(new Set());
 
   return (
     <View style={styles.container}>
-      <AnimatePresence>
-        {habits.map((habit) => {
-          const isChecked = (habit.checkIn?.length || 0) > 0;
+      {habits.map((habit) => {
+        const checkedFromServer = habit.checkIn?.some(
+          (c) => c.date === selectedDate
+        );
 
-          return (
-            <MotiView
-              key={habit.id}
-              from={{ opacity: 0, translateY: 20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              exit={{ opacity: 0, translateY: -20 }}
-              transition={{ type: "spring", damping: 15, stiffness: 120 }}
-              style={styles.card}
+        const isChecked =
+          checkedFromServer || localChecked.has(habit.id);
+
+        return (
+          <Pressable
+            key={habit.id}
+            style={({ pressed }) => [
+              styles.card,
+              pressed && { opacity: 0.9 },
+            ]}
+            onPress={() => onPressHabit?.(habit.id)}
+          >
+            <TouchableOpacity
+              onPress={(e) => {
+                e.stopPropagation();
+                if (isChecked) return;
+
+                setLocalChecked((prev) => new Set(prev).add(habit.id));
+
+                onCheckIn(habit.id, selectedDate).catch((err: any) => {
+                  setLocalChecked((prev) => {
+                    const next = new Set(prev);
+                    next.delete(habit.id);
+                    return next;
+                  });
+
+                  Alert.alert(
+                    "Check-in gagal",
+                    err?.message || "Terjadi kesalahan"
+                  );
+                });
+              }}
+              style={styles.checkbox}
             >
-              <TouchableOpacity onPress={() => handleCheckIn(habit.id)}>
+              <Ionicons
+                name={isChecked ? "checkbox" : "square-outline"}
+                size={24}
+                color={isChecked ? "#9CA3AF" : "#16A34A"}
+              />
+            </TouchableOpacity>
+
+            <View style={styles.content}>
+              <Text
+                numberOfLines={2}
+                style={[
+                  styles.title,
+                  isChecked && styles.completedText,
+                ]}
+              >
+                {habit.title}
+              </Text>
+            </View>
+
+            {onDelete && (
+              <TouchableOpacity
+                onPress={(e) => {
+                  e.stopPropagation();
+                  onDelete(habit.id).catch((err: any) => {
+                    Alert.alert(
+                      "Hapus gagal",
+                      err?.message || "Terjadi kesalahan"
+                    );
+                  });
+                }}
+                style={styles.deleteButton}
+              >
                 <Ionicons
-                  name={isChecked ? "checkbox" : "square-outline"}
-                  size={24}
-                  color={isChecked ? "#9CA3AF" : "#fff"}
+                  name="trash-outline"
+                  size={20}
+                  color="#E53935"
                 />
               </TouchableOpacity>
-
-              <Text style={styles.title}>{habit.title}</Text>
-
-              {onDelete && (
-                <TouchableOpacity onPress={() => onDelete(habit.id)} style={styles.deleteButton}>
-                  <Text style={styles.deleteText}>Hapus</Text>
-                </TouchableOpacity>
-              )}
-            </MotiView>
-          );
-        })}
-      </AnimatePresence>
+            )}
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: { padding: 16, flex: 1 },
+  container: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
   card: {
-    width: SCREEN_WIDTH - 32,
-    height: 120,
-    backgroundColor: "#16A34A",
-    borderRadius: 12,
+    backgroundColor: "#FFF",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginBottom: 12,
-    padding: 16,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    elevation: 4,
   },
-  title: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  checkbox: { marginRight: 12 },
+  content: { flex: 1 },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  completedText: {
+    textDecorationLine: "line-through",
+    color: "#9CA3AF",
+  },
   deleteButton: {
-    backgroundColor: "#EF4444",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    marginLeft: 12,
+    padding: 6,
   },
-  deleteText: { color: "#fff", fontWeight: "bold" },
 });

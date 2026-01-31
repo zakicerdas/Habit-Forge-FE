@@ -111,55 +111,53 @@ export default function BottomTabs() {
 }
 
 const styles = StyleSheet.create({
-    tabBar: {
-        height: 70,
-        backgroundColor: "transparent",
-        borderTopWidth: 0,
-        elevation: 0,
-    },
+  tabBar: {
+    height: 70,
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 0,
+    elevation: 8,
+  },
 
-    tabBarBackground: {
-        position: "absolute",
-        left: 16,
-        right: 16,
-        bottom: 10,
-        height: 70,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 24,
-        elevation: 6,
-    },
+  tabBarBackground: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
 
-    label: {
-        fontSize: 12,
-        marginBottom: 6,
-        fontWeight: "500",
-    },
-    wrapper: {
-        position: "absolute",
-        left: "50%",
-        transform: [{ translateX: -30 }],
-    },
+  label: {
+    fontSize: 12,
+    fontWeight: "500",
+    marginBottom: 0, 
+  },
 
-    addButton: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: "#2ECC71",
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: -30,
-        elevation: 8,
-    },
 
-    activeIcon: {
-        color: "#2ECC71",
-    },
+  wrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
 
-    inactiveIcon: {
-        color: "#6B9080",
-    },
+  addButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#2ECC71",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 0,
+    elevation: 6,
+  },
 
-    addIcon: {
-        color: "#FFFFFF",
-    },
+  activeIcon: {
+    color: "#2ECC71",
+  },
+
+  inactiveIcon: {
+    color: "#6B9080",
+  },
+
+  addIcon: {
+    color: "#FFFFFF",
+  },
 });
+

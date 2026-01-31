@@ -1,25 +1,40 @@
-import { View, Text, StyleSheet } from "react-native";
-import moment from "moment";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { useEffect, useRef } from "react";
+import type { Habit } from "../../types/habit";
 
 type Props = {
-  selectedDate: moment.Moment;
-  completed: number;
-  total: number;
+  selectedDate: string;
+  habits: Habit[];
 };
 
-export default function Header({
-  selectedDate,
-  completed,
-  total,
-}: Props) {
+export default function Header({ selectedDate, habits }: Props) {
+  const completed = habits.filter((habit) =>
+    habit.checkIn?.some((c) => c.date === selectedDate),
+  ).length;
+
+  const total = habits.length;
   const progress = total === 0 ? 0 : completed / total;
+
+  // 🎯 animated value (0 – 1)
+  const animatedProgress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(animatedProgress, {
+      toValue: progress,
+      duration: 400,          
+      useNativeDriver: false, 
+    }).start();
+  }, [progress, animatedProgress]);
+
+  const widthInterpolated = animatedProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+  });
 
   return (
     <View style={styles.container}>
       <View style={styles.dateBadge}>
-        <Text style={styles.dateText}>
-          {selectedDate.format("MMM DD, YYYY")}
-        </Text>
+        <Text style={styles.dateText}>{selectedDate}</Text>
       </View>
 
       <View style={styles.progressWrapper}>
@@ -33,10 +48,10 @@ export default function Header({
         </View>
 
         <View style={styles.progressBar}>
-          <View
+          <Animated.View
             style={[
               styles.progressFill,
-              { width: `${progress * 100}%` },
+              { width: widthInterpolated },
             ]}
           />
         </View>
@@ -44,12 +59,8 @@ export default function Header({
     </View>
   );
 }
-
 const styles = StyleSheet.create({
-  container: {
-    marginBottom: 12,
-  },
-
+  container: { marginBottom: 16 },
   dateBadge: {
     alignSelf: "center",
     backgroundColor: "#2ECC71",
@@ -58,29 +69,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginBottom: 12,
   },
-  dateText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-
+  dateText: { color: "#fff", fontWeight: "600", fontSize: 14 },
   progressWrapper: {
     backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 12,
+    padding: 14,
+    elevation: 2,
   },
   progressHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 8,
   },
-  progressText: {
-    color: "#1B4332",
-    fontWeight: "600",
-  },
-  percentText: {
-    color: "#2ECC71",
-    fontWeight: "bold",
-  },
+  progressText: { color: "#1B4332", fontWeight: "600" },
+  percentText: { color: "#2ECC71", fontWeight: "700" },
   progressBar: {
     height: 8,
     backgroundColor: "#EAF4F4",

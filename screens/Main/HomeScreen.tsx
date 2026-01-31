@@ -1,120 +1,128 @@
 import React, { useState, useMemo } from "react";
-import { View, StyleSheet } from "react-native";
-import moment from "moment";
+import {
+  StyleSheet,
+  ScrollView,
+  Alert,
+  View,
+  TouchableOpacity,
+} from "react-native";
+import moment, { Moment } from "moment";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { useNavigation } from "@react-navigation/native";
 
 import Header from "../../components/dashboard/Header";
 import CalendarSection from "../../components/dashboard/CalendarSection";
 import CategoryFilter from "../../components/dashboard/CategoryFilter";
-import LoadingScreen from "../Auth/LoadingScreen";
 import HabitCards from "../../components/dashboard/HabitCard";
+import LoadingScreen from "../Auth/LoadingScreen";
 
 import { useHabit } from "../../hooks/useHabit";
+import { Category } from "../../types/category";
 import { Frequency } from "../../types/frequency";
-import { CategoryName } from "../../types/category";
-import { checkInHabit } from "../../services/checkin.service";
 
 export default function HomeScreen() {
-  const { habits, isLoading, fetchHabits } = useHabit();
-  const [selectedDate, setSelectedDate] = useState(moment());
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoryName | "ALL">("ALL");
+  const navigation = useNavigation<any>();
 
-  // Filter habit sesuai tanggal & kategori
+  const { habits, isLoading, handleCheckIn, deleteHabit } = useHabit();
+
+  const [selectedDate, setSelectedDate] =
+    useState<Moment>(moment());
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category | "ALL">("ALL");
+
   const filteredHabits = useMemo(() => {
     return habits.filter((habit) => {
       const startDate = moment(habit.startDate);
 
       if (selectedDate.isBefore(startDate, "day")) return false;
+
       if (
         selectedCategory !== "ALL" &&
-        habit.categoryName !== selectedCategory
-      )
+        habit.category !== selectedCategory
+      ) {
         return false;
+      }
 
-      if (habit.frequency === Frequency.DAILY) return true;
-      if (habit.frequency === Frequency.WEEKLY)
-        return selectedDate.day() === startDate.day();
-      if (habit.frequency === Frequency.MONTHLY)
-        return selectedDate.date() === startDate.date();
-      if (habit.frequency === Frequency.YEARLY)
-        return (
-          selectedDate.month() === startDate.month() &&
-          selectedDate.date() === startDate.date()
-        );
-
-      return false;
+      switch (habit.frequency) {
+        case Frequency.DAILY:
+          return true;
+        case Frequency.WEEKLY:
+          return selectedDate.day() === startDate.day();
+        case Frequency.MONTHLY:
+          return selectedDate.date() === startDate.date();
+        case Frequency.YEARLY:
+          return (
+            selectedDate.month() === startDate.month() &&
+            selectedDate.date() === startDate.date()
+          );
+        default:
+          return false;
+      }
     });
   }, [habits, selectedDate, selectedCategory]);
 
-  const sessions = useMemo(() => {
-    const map: Record<string, { date: string; duration: number }> = {};
-
-    habits.forEach((habit) => {
-      const startDate = moment(habit.startDate);
-      const today = moment();
-
-      for (let i = 0; i < 90; i++) {
-        const date = startDate.clone().add(i, "days");
-        if (date.isAfter(today, "day")) break;
-
-        const show =
-          habit.frequency === Frequency.DAILY ||
-          (habit.frequency === Frequency.WEEKLY &&
-            date.day() === startDate.day()) ||
-          (habit.frequency === Frequency.MONTHLY &&
-            date.date() === startDate.date()) ||
-          (habit.frequency === Frequency.YEARLY &&
-            date.month() === startDate.month() &&
-            date.date() === startDate.date());
-
-        if (!show) continue;
-
-        const key = date.format("YYYY-MM-DD");
-        if (!map[key]) map[key] = { date: key, duration: 0 };
-        map[key].duration += 25;
-      }
-    });
-
-    return Object.values(map);
-  }, [habits]);
-
-  const completedCount = filteredHabits.filter(
-    (habit) => (habit.checkIn?.length || 0) > 0
-  ).length;
-
   if (isLoading) return <LoadingScreen />;
 
+  const dateStr = selectedDate.format("YYYY-MM-DD");
+
   return (
-    <View style={styles.container}>
-      <Header
-        selectedDate={selectedDate}
-        completed={completedCount}
-        total={filteredHabits.length}
-      />
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* ☰ DRAWER */}
+      <View style={styles.topHeader}>
+        <TouchableOpacity
+          onPress={() => navigation.openDrawer()}
+          style={styles.menuButton}
+        >
+          <Ionicons name="menu" size={26} color="#1B4332" />
+        </TouchableOpacity>
+      </View>
+
+      <Header selectedDate={dateStr} habits={filteredHabits} />
 
       <CategoryFilter
-        selected={selectedCategory}
-        onSelect={setSelectedCategory}
+        value={selectedCategory}
+        onChange={setSelectedCategory}
       />
 
       <CalendarSection
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
-        sessions={sessions}
+        sessions={[]}
       />
 
       <HabitCards
         habits={filteredHabits}
-        onCheckIn={async (habitId: string) => {
+        selectedDate={dateStr}
+        onCheckIn={async (habitId, date) => {
           try {
-            await checkInHabit(habitId, selectedDate.format("YYYY-MM-DD"));
-            await fetchHabits(selectedDate.format("YYYY-MM-DD"));
+            await handleCheckIn(habitId, date);
           } catch (err: any) {
-            console.log("Check-in error:", err?.response?.data || err);
+            Alert.alert(
+              "Check-in gagal",
+              err?.message || "Terjadi kesalahan"
+            );
           }
         }}
+        onDelete={async (habitId) => {
+          try {
+            await deleteHabit(habitId);
+          } catch (err: any) {
+            Alert.alert(
+              "Hapus gagal",
+              err?.message || "Terjadi kesalahan"
+            );
+          }
+        }}
+        onPressHabit={(habitId) => {
+          navigation.navigate("Detail", { habitId });
+        }}
       />
-    </View>
+    </ScrollView>
   );
 }
 
@@ -122,6 +130,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F6FFF8",
+  },
+
+  content: {
     padding: 16,
+    paddingBottom: 32,
+  },
+  topHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  menuButton: {
+    padding: 8,
   },
 });

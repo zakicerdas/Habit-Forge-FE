@@ -6,11 +6,10 @@ import {
   Pressable,
   StyleSheet,
   Alert,
+  Image,
 } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingScreen from "./LoadingScreen";
-
 
 export default function LoginScreen({ navigation }: any) {
   const { login, isLoading } = useAuth();
@@ -25,39 +24,32 @@ export default function LoginScreen({ navigation }: any) {
     }
 
     try {
-      console.log("Requesting login...");
-      console.log("Email:", email);
-      console.log("Password length:", password.length);
-
       await login(email.trim().toLowerCase(), password);
-
-      console.log("login successful");
-
     } catch (error: any) {
-      console.log(
-        "cannot login:",
-        error?.response?.data || error
-      );
-
       Alert.alert(
-        "Login failed",
-        error?.response?.data?.message || "Email atau password salah"
+        "Login gagal",
+        error?.response?.data?.message || "Email atau password salah",
       );
     }
   };
 
-    if (isLoading) {
-    return <LoadingScreen />;
-  }
+  if (isLoading) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <View style={styles.brand}>
+        <Image
+          source={require("../../assets/logo.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.appName}>HabitForge</Text>
+        <Text style={styles.tagline}>Build habits. Shape life.</Text>
+      </View>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -67,38 +59,30 @@ export default function LoginScreen({ navigation }: any) {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#888"
+        placeholderTextColor="#9CA3AF"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
 
-      <Pressable style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <Pressable style={styles.primaryButton} onPress={handleLogin}>
+        <Text style={styles.primaryText}>Login</Text>
       </Pressable>
 
-      <View style={styles.orWrapper}>
+      <View style={styles.divider}>
         <View style={styles.line} />
-        <Text style={styles.orText}>atau</Text>
+        <Text style={styles.dividerText}>atau</Text>
         <View style={styles.line} />
       </View>
 
       <Pressable
-        style={styles.registerButton}
+        style={styles.secondaryButton}
         onPress={() => navigation.navigate("Register")}
       >
-        <Text style={styles.registerText}>Register</Text>
+        <Text style={styles.secondaryText}>Buat akun baru</Text>
       </Pressable>
 
-      <Pressable
-        style={styles.clearButton}
-        onPress={async () => {
-          await AsyncStorage.clear();
-          Alert.alert("Success", "AsyncStorage cleared");
-        }}
-      >
-        <Text style={styles.clearText}>Clear AsyncStorage (Debug)</Text>
-      </Pressable>
+
     </View>
   );
 }
@@ -106,38 +90,57 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#F6FFF8",
     padding: 24,
-    backgroundColor: "#fff",
+    justifyContent: "center",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#2ecc71",
-    textAlign: "center",
-    marginBottom: 24,
+
+  brand: {
+    alignItems: "center",
+    marginBottom: 36,
   },
-  input: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    paddingHorizontal: 16,
+  logo: {
+    width: 90,
+    height: 90,
     marginBottom: 12,
   },
-  button: {
-    height: 48,
-    backgroundColor: "#2ecc71",
-    borderRadius: 10,
+  appName: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#1B4332",
+    letterSpacing: 0.5,
+  },
+  tagline: {
+    fontSize: 13,
+    color: "#6B7280",
+    marginTop: 4,
+  },
+
+  input: {
+    height: 50,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    fontSize: 14,
+    marginBottom: 12,
+    elevation: 1,
+  },
+
+  primaryButton: {
+    height: 50,
+    backgroundColor: "#2ECC71",
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 4,
   },
-  buttonText: {
+  primaryText: {
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: "700",
+    fontSize: 16,
   },
-  orWrapper: {
+
+  divider: {
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 20,
@@ -145,35 +148,33 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "#ddd",
+    backgroundColor: "#E5E7EB",
   },
-  orText: {
-    marginHorizontal: 10,
-    color: "#888",
-  },
-  registerButton: {
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#2ecc71",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  registerText: {
-    color: "#2ecc71",
-    fontWeight: "600",
-  },
-  clearButton: {
-    height: 40,
-    backgroundColor: "#ff6b6b",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-  },
-  clearText: {
-    color: "#fff",
-    fontWeight: "500",
+  dividerText: {
+    marginHorizontal: 12,
+    color: "#9CA3AF",
     fontSize: 12,
+  },
+
+  secondaryButton: {
+    height: 50,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "#2ECC71",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  secondaryText: {
+    color: "#2ECC71",
+    fontWeight: "700",
+  },
+
+  debugButton: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  debugText: {
+    fontSize: 12,
+    color: "#EF4444",
   },
 });
