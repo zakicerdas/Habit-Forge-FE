@@ -5,10 +5,7 @@ const BASE_URL = "https://habbit-forge-be-mnfp.vercel.app//api";
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  timeout: 30000, 
 });
 
 api.interceptors.request.use(
@@ -17,6 +14,11 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)

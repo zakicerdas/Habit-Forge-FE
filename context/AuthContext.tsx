@@ -55,23 +55,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      * Hanya kirim data → backend
      * TIDAK menyimpan token
      */
-    const register = async (
-        email: string,
-        username: string,
-        password: string
-    ) => {
-        setIsLoading(true);
-
-        try {
-            await api.post("/auth/register", {
-                email,
-                username,
-                password,
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const register = async (email: string, username: string, password: string) => {
+  try {
+    const res = await api.post("/auth/register", { email, username, password });
+    console.log("✅ REGISTER SUCCESS", res.data);
+  } catch (err: any) {
+    console.warn("❌ REGISTER ERROR:", err.message);
+  }
+};
 
     /**
      * LOGIN (FETCHING TERJADI DI SINI)
@@ -80,35 +71,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      * res.data.data.token
      */
     const login = async (email: string, password: string) => {
-        setIsLoading(true);
+  const res = await api.post("/auth/login", {
+    email,
+    password,
+  });
 
-        try {
-            const res = await api.post("/auth/login", {
-                email,
-                password,
-            });
+  const {
+    user: loggedInUser,
+    token: accessToken,
+  } = res.data.data;
 
-            const {
-                user: loggedInUser,
-                token: accessToken,
-            } = res.data.data;
+  await AsyncStorage.setItem("token", accessToken);
+  await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
+  await AsyncStorage.setItem("userId", loggedInUser.id);
 
-            await AsyncStorage.setItem("token", accessToken);
-            await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
+  console.log("✅ userId disimpan:", loggedInUser.id);
 
-            setToken(accessToken);
-            setUser(loggedInUser);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  setToken(accessToken);
+  setUser(loggedInUser);
+};
 
     /**
      * LOGOUT
      * Bersihkan storage & state
      */
     const logout = async () => {
-        setIsLoading(true);
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("user");
+        await AsyncStorage.removeItem("userId");
 
         try {
             await AsyncStorage.removeItem("token");

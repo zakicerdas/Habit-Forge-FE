@@ -1,8 +1,8 @@
 import React from "react";
 import { useAuth } from "../hooks/useAuth";
 import AuthNavigator from "./AuthNavigator";
-import DrawerNavigator from "./DrawerNavigator";
 import LoadingScreen from "../screens/Auth/LoadingScreen";
+import AppStackNavigator from "./appStackNavigator";
 
 export default function RootNavigator() {
   const { token, isLoading } = useAuth();
@@ -11,5 +11,5 @@ export default function RootNavigator() {
     return <LoadingScreen />;
   }
 
-  return token ? <DrawerNavigator /> : <AuthNavigator />;
+  return token ? <AppStackNavigator /> : <AuthNavigator />;
 }
