@@ -7,8 +7,8 @@ import {
 import { Ionicons } from "@react-native-vector-icons/ionicons";
 
 import HomeScreen from "../screens/Main/HomeScreen";
-import StatisticsScreen from "../screens/Main/StatisticScreen";
 import CreateHabitScreen from "../screens/Main/CreateHabitScreen";
+import AchievementScreen from "../screens/Main/AchievementScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -47,7 +47,9 @@ const renderStatsIcon = (props: TabIconProps) => (
 );
 
 function TabBarBackground() {
-    return <View style={styles.tabBarBackground} />;
+    return <View 
+            pointerEvents="box-none"
+            style={styles.tabBarBackground} />;
 }
 
 function AddButton(props: BottomTabBarButtonProps) {
@@ -100,8 +102,8 @@ export default function BottomTabs() {
             />
 
             <Tab.Screen
-                name="Statistics"
-                component={StatisticsScreen}
+                name="Achievements"
+                component={AchievementScreen}
                 options={{
                     tabBarIcon: renderStatsIcon,
                 }}

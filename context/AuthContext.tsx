@@ -58,17 +58,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      * Hanya kirim data → backend
      * TIDAK menyimpan token
      */
-    const register = async (
-        email: string,
-        username: string,
-        password: string
-    ) => {
-        await api.post("/auth/register", {
-            email,
-            username,
-            password,
-        });
-    };
+    const register = async (email: string, username: string, password: string) => {
+  try {
+    const res = await api.post("/auth/register", { email, username, password });
+    console.log("✅ REGISTER SUCCESS", res.data);
+  } catch (err: any) {
+    console.warn("❌ REGISTER ERROR:", err.message);
+  }
+};
 
     /**
      * =========================
@@ -79,23 +76,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      * res.data.data.token
      */
     const login = async (email: string, password: string) => {
-        const res = await api.post("/auth/login", {
-            email,
-            password,
-        });
+  const res = await api.post("/auth/login", {
+    email,
+    password,
+  });
 
-       const {
+  const {
     user: loggedInUser,
-    token: accessToken, 
+    token: accessToken,
   } = res.data.data;
 
+  await AsyncStorage.setItem("token", accessToken);
+  await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
+  await AsyncStorage.setItem("userId", loggedInUser.id);
 
-        await AsyncStorage.setItem("token", accessToken);
-        await AsyncStorage.setItem("user", JSON.stringify(loggedInUser));
+  console.log("✅ userId disimpan:", loggedInUser.id);
 
-        setToken(accessToken);
-        setUser(loggedInUser);
-    };
+  setToken(accessToken);
+  setUser(loggedInUser);
+};
 
     /**
      * =========================
@@ -106,6 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const logout = async () => {
         await AsyncStorage.removeItem("token");
         await AsyncStorage.removeItem("user");
+        await AsyncStorage.removeItem("userId");
 
         setToken(null);
         setUser(null);
