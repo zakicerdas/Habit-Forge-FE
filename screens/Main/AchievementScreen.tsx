@@ -29,7 +29,7 @@ export default function AchievementScreen() {
         keyExtractor={(item) => item.id}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => (
           <AchievementCard achievement={item} />
         )}
@@ -57,5 +57,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#111827",
+  },
+  listContainer: {
+    paddingBottom: 16,
   },
 });

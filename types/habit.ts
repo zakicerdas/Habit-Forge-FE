@@ -1,15 +1,20 @@
 import { Frequency } from "./frequency";
 import { Category } from "./category";
-import { CheckIn } from "./checkIn";
 
-export type Habit = {
+export type TodayHabit = {
   id: string;
   title: string;
-  description?: string;
-  isActive: boolean;
-  category: Category;
+  description: string | null;
   frequency: Frequency;
+  isActive: boolean;
+  category: Category | null;
   startDate: string;
-  createdAt: string;
-  checkIn?: CheckIn[];
+
+  isCheckedToday: boolean;
+  canCheckInToday: boolean;
+  todayCheckIn?: {
+    id: string;
+    date: string;
+    note?: string | null;
+  } | null;
 };

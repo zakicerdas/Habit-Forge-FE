@@ -7,14 +7,12 @@ const Stack = createNativeStackNavigator();
 export default function AppStackNavigator() {
   return (
     <Stack.Navigator>
-      {/* Drawer sebagai HOME */}
       <Stack.Screen
         name="Drawer"
         component={DrawerNavigator}
         options={{ headerShown: false }}
       />
 
-      {/* Screen di luar Drawer */}
       <Stack.Screen
         name="EditProfile"
         component={EditProfileScreen}

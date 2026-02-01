@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -23,7 +23,13 @@ import { Frequency } from "../../types/frequency";
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
 
-  const { habits, isLoading, handleCheckIn, deleteHabit } = useHabit();
+  const {
+    habits,
+    isLoading,
+    handleCheckIn,
+    deleteHabit,
+    fetchHabits,
+  } = useHabit();
 
   const [selectedDate, setSelectedDate] =
     useState<Moment>(moment());
@@ -31,6 +37,12 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] =
     useState<Category | "ALL">("ALL");
 
+  // 🔴 PENTING: fetch hanya ONCE (today-status)
+  useEffect(() => {
+    fetchHabits();
+  }, [fetchHabits]);
+
+  // 🔹 Filter hanya untuk VISIBILITY
   const filteredHabits = useMemo(() => {
     return habits.filter((habit) => {
       const startDate = moment(habit.startDate);
@@ -72,7 +84,6 @@ export default function HomeScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {/* ☰ DRAWER */}
       <View style={styles.topHeader}>
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
@@ -82,6 +93,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* 🔹 HEADER sekarang AMAN */}
       <Header selectedDate={dateStr} habits={filteredHabits} />
 
       <CategoryFilter
@@ -97,10 +109,9 @@ export default function HomeScreen() {
 
       <HabitCards
         habits={filteredHabits}
-        selectedDate={dateStr}
-        onCheckIn={async (habitId, date) => {
+        onCheckIn={async (habitId) => {
           try {
-            await handleCheckIn(habitId, date);
+            await handleCheckIn(habitId);
           } catch (err: any) {
             Alert.alert(
               "Check-in gagal",
@@ -125,13 +136,11 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F6FFF8",
   },
-
   content: {
     padding: 16,
     paddingBottom: 32,

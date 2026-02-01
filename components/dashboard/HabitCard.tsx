@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -8,71 +8,71 @@ import {
   Pressable,
 } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
-import type { Habit } from "../../types/habit";
+import type { TodayHabit } from "../../types/habit";
 
 type HabitCardsProps = {
-  habits: Habit[];
-  selectedDate: string;
-  onCheckIn: (habitId: string, date: string) => Promise<void>;
+  habits: TodayHabit[];
+  onCheckIn: (habitId: string) => Promise<void>;
   onDelete?: (habitId: string) => Promise<void>;
   onPressHabit?: (habitId: string) => void;
 };
 
 export default function HabitCards({
   habits,
-  selectedDate,
   onCheckIn,
   onDelete,
   onPressHabit,
 }: HabitCardsProps) {
-  const [localChecked, setLocalChecked] = useState<Set<string>>(new Set());
-
   return (
-    <View style={styles.container}>
+    <View style={styles.containerWrapper}>
       {habits.map((habit) => {
-        const checkedFromServer = habit.checkIn?.some(
-          (c) => c.date === selectedDate
-        );
+        const isChecked = habit.isCheckedToday;
+        const disabled = !habit.canCheckInToday;
 
-        const isChecked =
-          checkedFromServer || localChecked.has(habit.id);
+        const cardStyle = [
+          styles.card,
+          isChecked && styles.cardPressed,
+          disabled && styles.cardDisabled,
+        ];
 
         return (
           <Pressable
             key={habit.id}
-            style={({ pressed }) => [
-              styles.card,
-              pressed && { opacity: 0.9 },
-            ]}
+            style={cardStyle}
             onPress={() => onPressHabit?.(habit.id)}
           >
             <TouchableOpacity
-              onPress={(e) => {
+              disabled={disabled}
+              onPress={async (e) => {
                 e.stopPropagation();
-                if (isChecked) return;
-
-                setLocalChecked((prev) => new Set(prev).add(habit.id));
-
-                onCheckIn(habit.id, selectedDate).catch((err: any) => {
-                  setLocalChecked((prev) => {
-                    const next = new Set(prev);
-                    next.delete(habit.id);
-                    return next;
-                  });
-
+                if (disabled) return;
+                try {
+                  await onCheckIn(habit.id);
+                } catch (err: any) {
                   Alert.alert(
                     "Check-in gagal",
                     err?.message || "Terjadi kesalahan"
                   );
-                });
+                }
               }}
-              style={styles.checkbox}
+              style={styles.checkboxWrapper}
+              activeOpacity={0.7}
             >
-              <Ionicons
-                name={isChecked ? "checkbox" : "square-outline"}
-                size={24}
-                color={isChecked ? "#9CA3AF" : "#16A34A"}
-              />
+              <View
+                style={[
+                  styles.circleCheckbox,
+                  isChecked && styles.circleChecked,
+                  disabled && styles.circleDisabled,
+                ]}
+              >
+                {isChecked && (
+                  <Ionicons
+                    name="checkmark"
+                    size={20}
+                    color="#FFFFFF"
+                  />
+                )}
+              </View>
             </TouchableOpacity>
 
             <View style={styles.content}>
@@ -113,13 +113,18 @@ export default function HabitCards({
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+  containerWrapper: {
+    backgroundColor: "#F0FFF4",
+    borderRadius: 20,
+    padding: 12,
+    marginHorizontal: 16,
+    marginBottom: 16,
   },
+
   card: {
-    backgroundColor: "#FFF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -128,17 +133,53 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 4,
   },
-  checkbox: { marginRight: 12 },
-  content: { flex: 1 },
+
+  cardPressed: {
+    opacity: 0.9,
+  },
+
+  cardDisabled: {
+    opacity: 0.5,
+  },
+
+  checkboxWrapper: {
+    marginRight: 20,
+  },
+
+  circleCheckbox: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#16A34A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  circleChecked: {
+    backgroundColor: "#16A34A",
+    borderColor: "#16A34A",
+  },
+
+  circleDisabled: {
+    opacity: 0.4,
+  },
+
+  content: {
+    flex: 1,
+  },
+
   title: {
     fontSize: 16,
     fontWeight: "600",
     color: "#111827",
   },
+
   completedText: {
     textDecorationLine: "line-through",
     color: "#9CA3AF",
   },
+
   deleteButton: {
     marginLeft: 12,
     padding: 6,

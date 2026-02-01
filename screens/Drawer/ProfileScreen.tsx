@@ -14,6 +14,7 @@ import { useAchievements } from "../../context/AchievementContext";
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { profile, loading, editProfile } = useProfile();
+    const { achievements } = useAchievements();
 
   const pickImage = async () => {
     const result = await launchImageLibrary({
@@ -50,7 +51,7 @@ export default function ProfileScreen() {
     );
   }
 
-  const { achievements } = useAchievements();
+
 
   const unlocked = achievements.filter(
    (a) => a.progress >= a.target
@@ -59,10 +60,8 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header} />
 
-      {/* AVATAR */}
       <TouchableOpacity
         style={styles.avatarWrapper}
         onPress={pickImage}
@@ -100,7 +99,6 @@ export default function ProfileScreen() {
         <Text style={styles.editText}>Edit Profile</Text>
       </TouchableOpacity>
 
-            {/* ACHIEVEMENTS */}
       <View style={styles.achievementSection}>
         <Text style={styles.sectionTitle}>Achievements</Text>
 
