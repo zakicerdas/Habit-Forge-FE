@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import Ionicons from "@react-native-vector-icons/ionicons";
+import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 import type { TodayHabit } from "../../types/habit";
 
 type HabitCardsProps = {
@@ -23,89 +24,125 @@ export default function HabitCards({
   onDelete,
   onPressHabit,
 }: HabitCardsProps) {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
   return (
     <View style={styles.containerWrapper}>
       {habits.map((habit) => {
         const isChecked = habit.isCheckedToday;
         const disabled = !habit.canCheckInToday;
+        const isLoading = loadingId === habit.id;
 
         const cardStyle = [
           styles.card,
           isChecked && styles.cardPressed,
           disabled && styles.cardDisabled,
+          isLoading && styles.cardLoading,
         ];
 
         return (
           <Pressable
             key={habit.id}
             style={cardStyle}
+            disabled={isLoading}
             onPress={() => onPressHabit?.(habit.id)}
           >
-            <TouchableOpacity
-              disabled={disabled}
-              onPress={async (e) => {
-                e.stopPropagation();
-                if (disabled) return;
-                try {
-                  await onCheckIn(habit.id);
-                } catch (err: any) {
-                  Alert.alert(
-                    "Check-in gagal",
-                    err?.message || "Terjadi kesalahan"
-                  );
-                }
-              }}
-              style={styles.checkboxWrapper}
-              activeOpacity={0.7}
-            >
-              <View
-                style={[
-                  styles.circleCheckbox,
-                  isChecked && styles.circleChecked,
-                  disabled && styles.circleDisabled,
-                ]}
-              >
-                {isChecked && (
-                  <Ionicons
-                    name="checkmark"
-                    size={20}
-                    color="#FFFFFF"
+            {isLoading ? (
+              /* 🔹 SHIMMER STATE */
+              <SkeletonPlaceholder borderRadius={16}>
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                >
+                  <SkeletonPlaceholder.Item
+                    width={32}
+                    height={32}
+                    borderRadius={16}
+                    marginRight={20}
                   />
+                  <SkeletonPlaceholder.Item
+                    flex={1}
+                    height={16}
+                    borderRadius={8}
+                  />
+                </SkeletonPlaceholder.Item>
+              </SkeletonPlaceholder>
+            ) : (
+              <>
+                {/* 🔹 CHECKBOX */}
+                <TouchableOpacity
+                  disabled={disabled}
+                  onPress={async (e) => {
+                    e.stopPropagation();
+                    if (disabled || isLoading) return;
+
+                    try {
+                      setLoadingId(habit.id);
+                      await onCheckIn(habit.id);
+                    } catch (err: any) {
+                      Alert.alert(
+                        "Check-in gagal",
+                        err?.message || "Terjadi kesalahan"
+                      );
+                    } finally {
+                      setLoadingId(null);
+                    }
+                  }}
+                  style={styles.checkboxWrapper}
+                  activeOpacity={0.7}
+                >
+                  <View
+                    style={[
+                      styles.circleCheckbox,
+                      isChecked && styles.circleChecked,
+                      disabled && styles.circleDisabled,
+                    ]}
+                  >
+                    {isChecked && (
+                      <Ionicons
+                        name="checkmark"
+                        size={20}
+                        color="#FFFFFF"
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+
+                {/* 🔹 CONTENT */}
+                <View style={styles.content}>
+                  <Text
+                    numberOfLines={2}
+                    style={[
+                      styles.title,
+                      isChecked && styles.completedText,
+                    ]}
+                  >
+                    {habit.title}
+                  </Text>
+                </View>
+
+                {/* 🔹 DELETE */}
+                {onDelete && (
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      onDelete(habit.id).catch((err: any) => {
+                        Alert.alert(
+                          "Hapus gagal",
+                          err?.message || "Terjadi kesalahan"
+                        );
+                      });
+                    }}
+                    style={styles.deleteButton}
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={20}
+                      color="#E53935"
+                    />
+                  </TouchableOpacity>
                 )}
-              </View>
-            </TouchableOpacity>
-
-            <View style={styles.content}>
-              <Text
-                numberOfLines={2}
-                style={[
-                  styles.title,
-                  isChecked && styles.completedText,
-                ]}
-              >
-                {habit.title}
-              </Text>
-            </View>
-
-            {onDelete && (
-              <TouchableOpacity
-                onPress={(e) => {
-                  e.stopPropagation();
-                  onDelete(habit.id).catch((err: any) => {
-                    Alert.alert(
-                      "Hapus gagal",
-                      err?.message || "Terjadi kesalahan"
-                    );
-                  });
-                }}
-                style={styles.deleteButton}
-              >
-                <Ionicons
-                  name="trash-outline"
-                  size={20}
-                  color="#E53935"
-                />
-              </TouchableOpacity>
+              </>
             )}
           </Pressable>
         );
@@ -113,6 +150,7 @@ export default function HabitCards({
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   containerWrapper: {
@@ -140,6 +178,10 @@ const styles = StyleSheet.create({
 
   cardDisabled: {
     opacity: 0.5,
+  },
+
+  cardLoading: {
+    opacity: 0.8,
   },
 
   checkboxWrapper: {
