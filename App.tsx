@@ -10,13 +10,13 @@ export default function App() {
   return (
     <AuthProvider>
       <ProfileProvider>
-         <HabitProvider>
-          <AchievementProvider>
+        <AchievementProvider>
+          <HabitProvider>
             <NavigationContainer>
               <RootNavigator />
             </NavigationContainer>
-          </AchievementProvider>
-        </HabitProvider>
+          </HabitProvider>
+        </AchievementProvider>
       </ProfileProvider>
     </AuthProvider>
   );

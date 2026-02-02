@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { getAchievements } from "../services/achievement/achievement.service";
 
 type Achievement = {
@@ -13,6 +13,7 @@ type Achievement = {
 type AchievementContextType = {
   achievements: Achievement[];
   loading: boolean;
+  refreshAchievements: () => Promise<void>;
 };
 
 const AchievementContext = createContext<AchievementContextType | undefined>(
@@ -23,14 +24,24 @@ export function AchievementProvider({ children }: { children: React.ReactNode })
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    getAchievements()
-      .then(setAchievements)
-      .finally(() => setLoading(false));
+  const refreshAchievements = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getAchievements();
+      setAchievements(data);
+    } catch (error) {
+      console.error("Failed to refresh achievements:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    refreshAchievements();
+  }, [refreshAchievements]);
+
   return (
-    <AchievementContext.Provider value={{ achievements, loading }}>
+    <AchievementContext.Provider value={{ achievements, loading, refreshAchievements }}>
       {children}
     </AchievementContext.Provider>
   );

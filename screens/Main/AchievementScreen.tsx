@@ -8,9 +8,16 @@ import {
 } from "react-native";
 import { useAchievements } from "../../context/AchievementContext";
 import AchievementCard from "../../components/AchievementCard";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AchievementScreen() {
-  const { achievements, loading } = useAchievements();
+  const { achievements, loading, refreshAchievements } = useAchievements();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshAchievements();
+    }, [refreshAchievements])
+  )
 
   if (loading) {
     return (
@@ -41,12 +48,12 @@ export default function AchievementScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#111827",
+    backgroundColor: "#F0FDF4",
     paddingHorizontal: 12,
     paddingTop: 16,
   },
   header: {
-    color: "#fff",
+    color: "#166534",
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 12,
@@ -56,7 +63,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#111827",
+    backgroundColor: "#F0FDF4",
   },
   listContainer: {
     paddingBottom: 16,

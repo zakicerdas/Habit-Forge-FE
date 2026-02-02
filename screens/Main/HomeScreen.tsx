@@ -17,6 +17,7 @@ import HabitCards from "../../components/dashboard/HabitCard";
 import LoadingScreen from "../Auth/LoadingScreen";
 
 import { useHabit } from "../../hooks/useHabit";
+import { useAchievements } from "../../context/AchievementContext";
 import { Category } from "../../types/category";
 import { Frequency } from "../../types/frequency";
 
@@ -30,6 +31,8 @@ export default function HomeScreen() {
     deleteHabit,
     fetchHabits,
   } = useHabit();
+
+  const { refreshAchievements } = useAchievements();
 
   const [selectedDate, setSelectedDate] =
     useState<Moment>(moment());
@@ -112,6 +115,7 @@ export default function HomeScreen() {
         onCheckIn={async (habitId) => {
           try {
             await handleCheckIn(habitId);
+            await refreshAchievements();
           } catch (err: any) {
             Alert.alert(
               "Check-in gagal",
@@ -122,6 +126,7 @@ export default function HomeScreen() {
         onDelete={async (habitId) => {
           try {
             await deleteHabit(habitId);
+            await refreshAchievements();
           } catch (err: any) {
             Alert.alert(
               "Hapus gagal",

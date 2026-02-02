@@ -51,8 +51,6 @@ export default function ProfileScreen() {
     );
   }
 
-
-
   const unlocked = achievements.filter(
    (a) => a.progress >= a.target
   );

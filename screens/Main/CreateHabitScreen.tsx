@@ -13,7 +13,7 @@ import { Frequency } from "../../types/frequency";
 
 import CategorySelector from "../../components/HabitUi/CategorySelector";
 import FrequencySelector from "../../components/HabitUi/FrequencySelector";
-
+import { useAchievements } from "../../context/AchievementContext";
 import { useHabit } from "../../hooks/useHabit";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
@@ -27,6 +27,7 @@ export default function CreateHabitScreen() {
   const navigation = useNavigation<any>();
 
   const { createHabit, isLoading } = useHabit();
+  const { refreshAchievements } = useAchievements();
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -46,6 +47,8 @@ export default function CreateHabitScreen() {
       frequency,
       startDate: moment().format("YYYY-MM-DD"),
     });
+
+    await refreshAchievements();
 
     Alert.alert("Success", "Habit created");
     console.log("Habit created:", {
