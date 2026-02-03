@@ -5,9 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
 } from "react-native";
 import { useState } from "react";
 import { useProfile } from "../../context/ProfileContext";
+import { launchImageLibrary } from "react-native-image-picker";
 
 export default function EditProfileScreen({ navigation }: any) {
   const { profile, editProfile } = useProfile();
@@ -15,6 +17,24 @@ export default function EditProfileScreen({ navigation }: any) {
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [loading, setLoading] = useState(false);
+  const [avatar, setAvatar] = useState<any>(null);
+
+  const handleChoosePhoto = () => {
+    launchImageLibrary({ mediaType: "photo" }, (response) => {
+      if (response.didCancel) {
+        console.log("User cancelled image picker");
+      } else if (response.errorCode) {
+        console.log("ImagePicker Error: ", response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const source = {
+          uri: response.assets[0].uri,
+          type: response.assets[0].type,
+          name: response.assets[0].fileName,
+        };
+        setAvatar(source);
+      }
+    });
+  };
 
   const handleSave = async () => {
     if (!fullName.trim()) {
@@ -24,13 +44,13 @@ export default function EditProfileScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      await editProfile({ fullName, bio });
+      await editProfile({ fullName, bio, avatar });
       Alert.alert("Success", "Profile berhasil diupdate");
       navigation.goBack();
     } catch (error: any) {
       console.error("Save error:", error);
       Alert.alert(
-        "Error", 
+        "Error",
         error.response?.data?.message || "Gagal update profile. Coba lagi."
       );
     } finally {
@@ -40,6 +60,22 @@ export default function EditProfileScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.avatarContainer}>
+        <Image
+          source={
+            avatar
+              ? { uri: avatar.uri }
+              : profile?.avatar
+              ? { uri: profile.avatar }
+              : require("../../assets/logo.png")
+          }
+          style={styles.avatar}
+        />
+        <TouchableOpacity onPress={handleChoosePhoto}>
+          <Text style={styles.changePhotoText}>Ganti Foto</Text>
+        </TouchableOpacity>
+      </View>
+
       <Text style={styles.label}>Full Name</Text>
       <TextInput
         style={styles.input}
@@ -77,6 +113,20 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F6FFF8",
+  },
+  avatarContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  changePhotoText: {
+    color: "#2ECC71",
+    marginTop: 10,
+    fontWeight: "600",
   },
   label: {
     color: "#1B4332",
